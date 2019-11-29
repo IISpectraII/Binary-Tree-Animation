@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "d3": "^5.14.2",
+    "d3-binarytree": "^0.1.5",
+    "d3-canvas-transition": "^0.3.7",
+    "d3-quant": "^0.4.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.2.0"
