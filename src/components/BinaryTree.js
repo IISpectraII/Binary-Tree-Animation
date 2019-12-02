@@ -24,8 +24,7 @@ class BinarySearchTree {
       if (node.value.number === root.value.number) { //Caso Base: El valor ya existe en el arbol! 
           return ;
       }
-      else if(node.value.number < root.value.number) { //Caso Recursivo #1: El valor es menor que el nodo actual => Avanzar
-          // check if left subtree is null
+      else if(node.value.number < root.value.number) { //Caso Recursivo #1: El valor es menor que el nodo actual => Avanzar                  
           if (root.left !== null){
               this.insert(node, root.left);  
           }
@@ -33,9 +32,8 @@ class BinarySearchTree {
               root.left = node;
               node.parent = root;
           }
-      } else {
-          // check if right subtree is null
-          if (root.right !== null){
+      } else { //Caso Recursivo #2: Agregar por la derecha         
+          if (root.right !== null){              
               this.insert(node, root.right); 
           }
           else{
@@ -50,22 +48,27 @@ export default class BinaryTree extends Component {
 
     state = {
         mensaje: "Arbol Binario",
-        arbol: null,        
+        arbol: null,
+        colores: ["red", "blue", "green", "orange", "purple", "black", "yellow"]        
     }
 
     componentDidMount() {       
         this.renderTree();
     }
 
-    renderTree() {
-        console.log("Generando Arbol");
+    renderTree() {        
         const svg = d3.select(this.refs.canvas).append('svg');
-        svg.attr("width", 5000);
-        svg.attr("heigth", 5000);                
+        svg.attr("width", 10000);
+        svg.attr("heigth", 10000);                
     }
 
-    addItem(valor) { //Recopila el valor y lo añade al arbol.        
-        console.log("El valor es:", valor);
+    addItem(valor) { //Recopila el valor y lo añade al arbol.  
+        if (valor === "") {
+            return alert("Ingrese un número");
+        }                      
+        const svg = d3.select("svg");
+        let random = Math.floor(Math.random() * (this.state.colores.length - 0)) + 0;
+        let color = this.state.colores[random];        
         let nodo; //Nodo nuevo a almacenar.
 
         //Agregar el primer elemento al arbol
@@ -79,17 +82,14 @@ export default class BinaryTree extends Component {
             nodo = new Node(value)
             this.setState({arbol: new BinarySearchTree(nodo)});
 
-            //Dibujar el primer elemento.
-            
-            const svg = d3.select("svg");
-            
+            //Dibujar el primer elemento.            
             let ellipse = svg.append("ellipse")
-                        .style("fill", "red")
+                        .style("fill", color)
                         .attr("cx", nodo.value.x)
                         .attr("cy", nodo.value.y)
                         .attr("rx", 20)
                         .attr("ry", 20);
-            ellipse.transition().style("fill", "#1C73E3")
+            ellipse.transition().style("fill", color)
                         .attr("cx", nodo.value.x + 30)
                         .attr("cy", nodo.value.y + 30)
                         .attr("rx", 20)
@@ -97,33 +97,113 @@ export default class BinaryTree extends Component {
                         .attr("stroke", "black")
                         .ease(d3.easeElastic, 1)
                         .duration(1000);
+            svg.append("text")
+                .attr("x", nodo.value.x + 80)
+                .attr("y", nodo.value.y + 30)
+                .attr("font-size", "20px")
+                .text(nodo.value.number);
+
+            return;
         }
         
         //Agregar un elemento.
         else {
             nodo = new Node({number: valor});
-            this.state.arbol.insert(nodo, this.state.arbol.root);
-            //Tomar los datos del padre y del hijo
-            console.log("Datos del hijo", nodo);
+            this.state.arbol.insert(nodo, this.state.arbol.root);                        
         } 
         
-        //Pintar el elemento en el svg.
+        if (nodo.parent === null) { //El valor ya existe en el arbol !
+            return alert(`El valor ${valor} ya se encuentra agregado !`);
+        }
 
+        //Soy el hijo izquierdo.        
+        if (nodo.parent.left !== null && nodo.parent.left.value.number === nodo.value.number) {
+            //Actualizar coordenadas.            
+            nodo.value.x = nodo.parent.value.x - 60;
+            nodo.value.y = nodo.parent.value.y + 60;            
+            
+            //Dibujar.
+            let ellipse = svg.append("ellipse")
+                        .style("fill", color)
+                        .attr("cx", nodo.value.x)
+                        .attr("cy", nodo.value.y)
+                        .attr("rx", 20)
+                        .attr("ry", 20);
+            ellipse.transition().style("fill", color)
+                        .attr("cx", nodo.value.x + 30)
+                        .attr("cy", nodo.value.y + 30)
+                        .attr("rx", 20)
+                        .attr("ry", 20)
+                        .attr("stroke", "black")
+                        .ease(d3.easeElastic, 1)
+                        .duration(1000);
+            
+            //Dibujar la linea para conectar ambos nodos.
+            svg.append("line")
+                    .attr("x1", nodo.parent.value.x + 30)
+                    .attr("y1", nodo.parent.value.y + 30)
+                    .attr("x2", nodo.value.x + 30)
+                    .attr("y2", nodo.value.y + 30)
+                    .attr("stroke-width", 3)
+                    .attr("stroke", color);
+
+            svg.append("text")
+                .attr("x", nodo.value.x - 30)
+                .attr("y", nodo.value.y + 30)
+                .attr("font-size", "20px")
+                .text(nodo.value.number);
+        }
+        else { //Soy el hijo derecho.
+            //Actualizar coordenadas.            
+            nodo.value.x = nodo.parent.value.x + 60;
+            nodo.value.y = nodo.parent.value.y + 60;            
+            
+            //Dibujar.
+            let ellipse = svg.append("ellipse")
+                        .style("fill", color)
+                        .attr("cx", nodo.value.x)
+                        .attr("cy", nodo.value.y)
+                        .attr("rx", 20)
+                        .attr("ry", 20);
+            ellipse.transition().style("fill", color)
+                        .attr("cx", nodo.value.x + 30)
+                        .attr("cy", nodo.value.y + 30)
+                        .attr("rx", 20)
+                        .attr("ry", 20)
+                        .attr("stroke", "black")
+                        .ease(d3.easeElastic, 1)
+                        .duration(1000);
+            
+            //Dibujar la linea para conectar ambos nodos.
+            svg.append("line")
+                    .attr("x1", nodo.parent.value.x + 30)
+                    .attr("y1", nodo.parent.value.y + 30)
+                    .attr("x2", nodo.value.x + 30)
+                    .attr("y2", nodo.value.y + 30)
+                    .attr("stroke-width", 3)
+                    .attr("stroke", color);
+            
+            svg.append("text")
+                .attr("x", nodo.value.x + 80)
+                .attr("y", nodo.value.y + 30)
+                .attr("font-size", "20px")
+                .text(nodo.value.number);
+        }        
     }
 
     render(){
         let number = "";
         return (
-            <div className="container-fluid">
+            <div>
                 <h1 className="centrar">{this.state.mensaje}</h1>
                 <div className="row"> 
                     <form className="form-inline">
                         <label className="form-control">Ingrese un valor</label>
-                        <input type="number" className="form-control" id="valor" placeholder="Valor" onChange={evt => number = evt.target.value}></input>                        
-                        <button type="button" id="agregar" className="btn-success" onClick={evt => {evt.preventDefault(); this.addItem(number); number = "";}}>Agregar Valor</button>
-                    </form>
-                    <div ref="canvas">                        
-                    </div>
+                        <input type="number" className="form-control" id="valor" placeholder="Valor" onChange={evt => number = evt.target.value} required></input>                        
+                        <button type="button" id="agregar" className="btn-success" onClick={evt => {evt.preventDefault(); this.addItem(number); document.getElementById('valor').value=""}}>Agregar Valor</button>
+                    </form>                    
+                </div>
+                <div ref="canvas">                        
                 </div>
             </div>
         );
